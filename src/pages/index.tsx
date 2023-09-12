@@ -1,9 +1,5 @@
+const Home = () => {
+  return <main>landing page</main>;
+};
 
-
-export default function Home() {
-  return (
-    <>
-      <main></main>
-    </>
-  );
-}
+export default Home;
