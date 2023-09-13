@@ -1,4 +1,4 @@
-import { ChevronLeft } from "lucide-react";
+import { ChevronLeft, Loader2 } from "lucide-react";
 import { Button } from "../ui/button";
 import Link from "next/link";
 import { Label } from "../ui/label";
@@ -13,14 +13,33 @@ import {
 import { z } from "zod";
 import { useFormik } from "formik";
 import { toFormikValidationSchema } from "zod-formik-adapter";
+import { useState } from "react";
+import { api } from "@/utils/api";
+import { useEditor } from "@/hooks/store";
+
+enum Expiration {
+  NEVER_EXPIRES = -1,
+  CUSTOM = "Custom",
+  ONE_MIN = 1,
+  THREE_MINS = 3,
+  FIVE_MINS = 5,
+  TEN_MINS = 10,
+  FIFTEEN_MINS = 15,
+  THIRTY_MINS = 30,
+  SIXTY_MINS = 60,
+}
 
 const ControlSidebar = () => {
-  const formSchema = z.object({
-    title: z.string({ required_error: "Title is required" }),
-    password: z.string().optional(),
-    expiration: z.number(),
-    exposure: z.string(),
+  const editorContent = useEditor((state) => state.content);
+  const [shareableLink, setShareableLink] = useState("");
+
+  const { isLoading, mutate } = api.dox.createDox.useMutation({
+    onSuccess: (result) => {
+      setShareableLink(`localhost:3000/view/${result.dox.id}`);
+    },
   });
+
+  const [showCustomExpiration, setShowCustomExpiration] = useState(false);
 
   const formik = useFormik({
     initialValues: {
@@ -29,9 +48,20 @@ const ControlSidebar = () => {
       expiration: 60,
       exposure: "public",
     },
-    validationSchema: toFormikValidationSchema(formSchema),
+    validationSchema: toFormikValidationSchema(
+      z.object({
+        title: z.string({ required_error: "Title is required" }),
+        password: z.string().optional(),
+        exposure: z.string(),
+        expiration: z.union([z.string(), z.number()]),
+      }),
+    ),
     onSubmit: (result) => {
-      console.log(result);
+      mutate({
+        ...result,
+        expiration: result.expiration * 60 * 1000,
+        content: editorContent,
+      });
     },
   });
 
@@ -46,7 +76,7 @@ const ControlSidebar = () => {
         <form onSubmit={formik.handleSubmit}>
           <div className="form-field mt-4">
             <Label>Dox Title</Label>
-            {(formik.touched.title || formik.errors.title) && (
+            {formik.touched.title && formik.errors.title && (
               <small className="mb-1 block text-red-500">
                 {formik.errors.title}
               </small>
@@ -68,31 +98,75 @@ const ControlSidebar = () => {
           <div className="form-field mt-4">
             <Label className="mb-2 block">Dox Expiration</Label>
             <Select
-              onValueChange={(value) =>
-                formik.setValues({
-                  ...formik.values,
-                  expiration: +value * 60 * 1000,
-                })
-              }
+              defaultValue={Expiration.NEVER_EXPIRES.toString()}
+              onValueChange={(value) => {
+                if (value === Expiration.CUSTOM) {
+                  formik.setValues({
+                    ...formik.values,
+                    expiration: 0,
+                  });
+                  return setShowCustomExpiration(true);
+                } else {
+                  setShowCustomExpiration(false);
+
+                  formik.setValues({
+                    ...formik.values,
+                    expiration: value === Expiration.CUSTOM ? 0 : +value,
+                  });
+                }
+              }}
             >
               <SelectTrigger className="w-full">
                 <SelectValue placeholder="Never Expires" />
               </SelectTrigger>
               <SelectContent className="border-primary-foreground">
-                <SelectItem value="0">Never Expires</SelectItem>
-                <SelectItem value="1">1 min</SelectItem>
-                <SelectItem value="2">3 mins</SelectItem>
-                <SelectItem value="5">5 mins</SelectItem>
-                <SelectItem value="15">15 mins</SelectItem>
-                <SelectItem value="30">30 mins</SelectItem>
-                <SelectItem value="60">1hr</SelectItem>
-                <SelectItem value="Custom">Custom</SelectItem>
+                <SelectItem value={Expiration.NEVER_EXPIRES.toString()}>
+                  Never Expires
+                </SelectItem>
+                <SelectItem value={Expiration.ONE_MIN.toString()}>
+                  1 min
+                </SelectItem>
+                <SelectItem value={Expiration.THREE_MINS.toString()}>
+                  3 mins
+                </SelectItem>
+                <SelectItem value={Expiration.FIVE_MINS.toString()}>
+                  5 mins
+                </SelectItem>
+                <SelectItem value={Expiration.TEN_MINS.toString()}>
+                  15 mins
+                </SelectItem>
+                <SelectItem value={Expiration.FIFTEEN_MINS.toString()}>
+                  30 mins
+                </SelectItem>
+                <SelectItem value={Expiration.SIXTY_MINS.toString()}>
+                  1hr
+                </SelectItem>
+                <SelectItem value={Expiration.CUSTOM.toString()}>
+                  Custom
+                </SelectItem>
               </SelectContent>
             </Select>
+            {showCustomExpiration && (
+              <>
+                {formik.touched.expiration && formik.errors.expiration && (
+                  <small className="mt-2 block text-red-500">
+                    {formik.errors.expiration}
+                  </small>
+                )}
+                <Input
+                  type="number"
+                  placeholder="In mins"
+                  className="mt-4"
+                  id="expiration"
+                  {...formik.getFieldProps("expiration")}
+                />
+              </>
+            )}
           </div>
           <div className="form-field mt-4">
             <Label className="mb-2 block">Dox Exposure</Label>
             <Select
+              defaultValue="public"
               onValueChange={(value) =>
                 formik.setValues({ ...formik.values, exposure: value })
               }
@@ -106,7 +180,18 @@ const ControlSidebar = () => {
               </SelectContent>
             </Select>
           </div>
-          <Button className="mt-4 w-full">Create Dox</Button>
+          <Button disabled={isLoading} className="mt-4 w-full">
+            {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            Create Dox
+          </Button>
+          {shareableLink && (
+            <div className="mt-4">
+              <Input
+                value={shareableLink}
+                onClick={() => navigator.clipboard.writeText(shareableLink)}
+              />
+            </div>
+          )}
         </form>
       </div>
     </aside>
