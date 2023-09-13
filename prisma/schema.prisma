@@ -17,7 +17,7 @@ model Dox {
   password   String  @db.VarChar(300)
   expiration Decimal
   exposure   String
-  content    String  @db.VarChar(1000)
+  content    String  @db.LongText()
 
   user   User   @relation(fields: [userId], references: [id])
   userId String
