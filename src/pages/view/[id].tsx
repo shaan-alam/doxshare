@@ -8,7 +8,12 @@ const ViewDox: NextPage = () => {
   const router = useRouter();
   const id = router.query["id"] as string;
 
-  const { isLoading, data } = api.dox.getDox.useQuery({ id });
+  const { isLoading, data } = api.dox.getDox.useQuery(
+    { id },
+    {
+      onSuccess: console.log,
+    },
+  );
 
   return (
     <section className="h-auto w-full">
@@ -21,6 +26,7 @@ const ViewDox: NextPage = () => {
         {!isLoading && data && (
           <div className={styles["dox-view-container"]}>
             <div
+              className="h-screen"
               dangerouslySetInnerHTML={{ __html: data?.dox?.content as string }}
             />
           </div>
