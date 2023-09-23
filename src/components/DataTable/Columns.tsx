@@ -10,7 +10,7 @@ import {
   DropdownMenuContent,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "../ui/button";
-import { MoreHorizontal } from "lucide-react";
+import { Lock, MoreHorizontal, Unlock } from "lucide-react";
 import Link from "next/link";
 
 export type Dox = Prisma.DoxGetPayload<{
@@ -20,6 +20,7 @@ export type Dox = Prisma.DoxGetPayload<{
     exposure: true;
     title: true;
     isPasswordProtected: true;
+    createdAt: true;
   };
 }>;
 
@@ -27,14 +28,53 @@ export const columns: ColumnDef<Dox>[] = [
   {
     accessorKey: "title",
     header: "Title",
+    cell: ({ row }) => {
+      const dox = row.original;
+
+      return (
+        <Link href={`/view/${dox.id}`} className="hover:underline">
+          {dox.title}
+        </Link>
+      );
+    },
   },
   {
     accessorKey: "exposure",
     header: "Exposure",
+    cell: ({ row }) => {
+      const dox = row.original;
+
+      return dox.exposure.charAt(0).toUpperCase() + dox.exposure.substring(1);
+    },
+  },
+  {
+    accessorKey: "expiration",
+    header: "Expiration",
+    cell: ({ row }) => {
+      const dox = row.original;
+
+      if (
+        new Date().getMilliseconds() >
+        dox.createdAt.getMilliseconds() + Number(dox.expiration)
+      ) {
+        return <span className="text-red-500">Expired</span>;
+      } else {
+        return <span className="text-green-500">Not Expired</span>;
+      }
+    },
   },
   {
     accessorKey: "isPasswordProtected",
     header: "Password Protected",
+    cell: ({ row }) => {
+      const dox = row.original;
+
+      return dox.isPasswordProtected ? (
+        <Lock className="h-4 w-4 text-green-500" />
+      ) : (
+        <Unlock className="h-4 w-4 text-red-500" />
+      );
+    },
   },
   {
     id: "actions",

@@ -59,6 +59,9 @@ export const doxRouter = createTRPCRouter({
     const { id } = ctx.session.user;
 
     let doxes = await ctx.db.dox.findMany({
+      orderBy: {
+        
+      },
       where: {
         userId: id,
       },
@@ -67,6 +70,7 @@ export const doxRouter = createTRPCRouter({
         title: true,
         isPasswordProtected: true,
         exposure: true,
+        createdAt: true
       },
     });
 
