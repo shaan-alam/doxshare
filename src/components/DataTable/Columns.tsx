@@ -70,9 +70,15 @@ export const columns: ColumnDef<Dox>[] = [
       const dox = row.original;
 
       return dox.isPasswordProtected ? (
-        <Lock className="h-4 w-4 text-green-500" />
+        <span className="flex items-center text-green-500">
+          <Lock className="h-4 w-4" />
+          &nbsp;Protected
+        </span>
       ) : (
-        <Unlock className="h-4 w-4 text-red-500" />
+        <span className="flex items-center text-red-500">
+          <Unlock className="h-4 w-4" />
+          &nbsp;Not Protected
+        </span>
       );
     },
   },

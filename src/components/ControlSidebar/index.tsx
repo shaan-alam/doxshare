@@ -68,7 +68,7 @@ const ControlSidebar = () => {
   });
 
   return (
-    <aside className="w-[30%] mr-auto border-l border-primary-foreground">
+    <aside className="mr-auto w-[30%] border-l border-primary-foreground">
       <ScrollArea className="h-screen p-6">
         <Link href="/app">
           <Button variant="outline">
@@ -96,6 +96,7 @@ const ControlSidebar = () => {
               <Input
                 className="mt-2 bg-primary-foreground"
                 placeholder="*******"
+                {...formik.getFieldProps("password")}
               />
             </div>
             <div className="form-field mt-4">

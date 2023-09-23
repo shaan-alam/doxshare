@@ -6,7 +6,7 @@ import {
   protectedProcedure,
   publicProcedure,
 } from "@/server/api/trpc";
-  
+
 export const doxRouter = createTRPCRouter({
   createDox: protectedProcedure
     .input(
@@ -32,6 +32,7 @@ export const doxRouter = createTRPCRouter({
           content,
           expiration,
           exposure,
+          isPasswordProtected: hashedPassword.length > 0 ? true : false,
           password: hashedPassword ? `${password}` : "",
           userId: ctx.session.user.id,
         },
@@ -53,14 +54,14 @@ export const doxRouter = createTRPCRouter({
         },
       });
 
-      return { dox: { ...dox, isPasswordProtected: !!dox?.password } };
+      return { dox: { ...dox } };
     }),
   getAllDox: protectedProcedure.query(async ({ input, ctx }) => {
     const { id } = ctx.session.user;
 
     let doxes = await ctx.db.dox.findMany({
       orderBy: {
-        
+        createdAt: "desc",
       },
       where: {
         userId: id,
@@ -70,7 +71,7 @@ export const doxRouter = createTRPCRouter({
         title: true,
         isPasswordProtected: true,
         exposure: true,
-        createdAt: true
+        createdAt: true,
       },
     });
 
