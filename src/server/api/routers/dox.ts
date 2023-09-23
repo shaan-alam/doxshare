@@ -6,7 +6,7 @@ import {
   protectedProcedure,
   publicProcedure,
 } from "@/server/api/trpc";
-
+  
 export const doxRouter = createTRPCRouter({
   createDox: protectedProcedure
     .input(
@@ -53,6 +53,25 @@ export const doxRouter = createTRPCRouter({
         },
       });
 
-      return { dox };
+      return { dox: { ...dox, isPasswordProtected: !!dox?.password } };
     }),
+  getAllDox: protectedProcedure.query(async ({ input, ctx }) => {
+    const { id } = ctx.session.user;
+
+    let doxes = await ctx.db.dox.findMany({
+      where: {
+        userId: id,
+      },
+      select: {
+        id: true,
+        title: true,
+        isPasswordProtected: true,
+        exposure: true,
+      },
+    });
+
+    return {
+      doxes,
+    };
+  }),
 });

@@ -1,16 +1,15 @@
 import { Sidebar } from "@/components";
+import DoxTable from "@/components/DataTable";
+import { api } from "@/utils/api";
 
 const Home = () => {
+  const { isLoading, data } = api.dox.getAllDox.useQuery();
+
   return (
     <main className="flex">
       <Sidebar />
       <div className="w-[80%]">
-        <p>
-          Lorem ipsum dolor sit amet consectetur adipisicing elit. Sit
-          dignissimos ea beatae tempore, corrupti accusantium veniam quidem
-          molestiae, sint laudantium ducimus, libero ratione deserunt esse est.
-          Vitae nostrum quibusdam debitis?
-        </p>
+        <DoxTable />
       </div>
     </main>
   );

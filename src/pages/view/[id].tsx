@@ -11,7 +11,7 @@ const ViewDox: NextPage = () => {
   const { isLoading, data } = api.dox.getDox.useQuery(
     { id },
     {
-      onSuccess: console.log,
+      onSuccess: console.log
     },
   );
 

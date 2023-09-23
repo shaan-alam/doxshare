@@ -15,7 +15,7 @@ const Sidebar = () => {
   const { data } = useSession();
 
   return (
-    <aside className="flex h-screen w-[20%] flex-col p-6">
+    <aside className="flex h-screen sticky left-0 top-0 border-r w-[20%] flex-col p-6">
       <h1 className="text-2xl font-bold text-primary">Doxshare</h1>
       <div className="menu mt-12">
         <ul>
