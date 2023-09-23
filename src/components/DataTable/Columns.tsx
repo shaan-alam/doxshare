@@ -32,7 +32,7 @@ export const columns: ColumnDef<Dox>[] = [
       const dox = row.original;
 
       return (
-        <Link href={`/view/${dox.id}`} className="hover:underline">
+        <Link href={`/edit/${dox.id}`} className="hover:underline">
           {dox.title}
         </Link>
       );
@@ -98,6 +98,7 @@ export const columns: ColumnDef<Dox>[] = [
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
+            <DropdownMenuSeparator />
             <Link href={`/dox/edit/${dox.id}`}>
               <DropdownMenuItem className="cursor-pointer">
                 Edit
