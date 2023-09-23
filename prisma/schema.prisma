@@ -12,13 +12,15 @@ generator client {
 }
 
 model Dox {
-  id                  String  @id @default(uuid())
+  id                  String   @id @default(uuid())
   title               String
-  password            String  @db.VarChar(300)
-  isPasswordProtected Boolean @default(false)
+  password            String   @db.VarChar(300)
+  isPasswordProtected Boolean  @default(false)
   expiration          Decimal
   exposure            String
-  content             String  @db.LongText()
+  content             String   @db.LongText()
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
 
   user   User   @relation(fields: [userId], references: [id])
   userId String
