@@ -20,7 +20,7 @@ import { useEditor } from "@/hooks/store";
 import { ScrollArea } from "../ui/scroll-area";
 
 enum Expiration {
-  NEVER_EXPIRES = -1,
+  NEVER_EXPIRES = 0,
   CUSTOM = "Custom",
   ONE_MIN = 1,
   THREE_MINS = 3,
@@ -47,7 +47,7 @@ const ControlSidebar = () => {
     initialValues: {
       title: "",
       password: "",
-      expiration: 60,
+      expiration: Expiration.NEVER_EXPIRES,
       exposure: "public",
     },
     validationSchema: toFormikValidationSchema(
@@ -55,13 +55,13 @@ const ControlSidebar = () => {
         title: z.string({ required_error: "Title is required" }),
         password: z.string().optional(),
         exposure: z.string(),
-        expiration: z.union([z.string(), z.number()]),
+        expiration: z.union([z.null(), z.number()]),
       }),
     ),
     onSubmit: (result) => {
       mutate({
         ...result,
-        expiration: result.expiration * 60 * 1000,
+        expiration: new Date().getTime() + +result.expiration * 60 * 1000,
         content: editorContent,
       });
     },
@@ -102,7 +102,7 @@ const ControlSidebar = () => {
             <div className="form-field mt-4">
               <Label className="mb-2 block">Dox Expiration</Label>
               <Select
-                defaultValue={Expiration.NEVER_EXPIRES.toString()}
+                defaultValue={`${formik.values.expiration}`}
                 onValueChange={(value) => {
                   if (value === Expiration.CUSTOM) {
                     formik.setValues({
@@ -121,7 +121,10 @@ const ControlSidebar = () => {
                 }}
               >
                 <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Never Expires" />
+                  <SelectValue
+                    placeholder="Never Expires"
+                    defaultValue={Expiration.NEVER_EXPIRES.toString()}
+                  />
                 </SelectTrigger>
                 <SelectContent className="border-primary-foreground">
                   <SelectItem value={Expiration.NEVER_EXPIRES.toString()}>

@@ -53,10 +53,18 @@ export const columns: ColumnDef<Dox>[] = [
     cell: ({ row }) => {
       const dox = row.original;
 
-      if (
-        new Date().getMilliseconds() >
-        dox.createdAt.getMilliseconds() + Number(dox.expiration)
-      ) {
+      if (!dox.expiration) {
+        return <span className="text-blue-500">Never Expires</span>;
+      }
+
+      console.log(
+        "current time ",
+        new Date().getTime(),
+        " expiration time ",
+        new Date(Number(dox.expiration)).getTime(),
+      );
+
+      if (new Date().getTime() > new Date(Number(dox.expiration)).getTime()) {
         return <span className="text-red-500">Expired</span>;
       } else {
         return <span className="text-green-500">Not Expired</span>;

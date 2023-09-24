@@ -30,7 +30,7 @@ export const doxRouter = createTRPCRouter({
         data: {
           title,
           content,
-          expiration,
+          expiration: expiration === 0 ? null : expiration,
           exposure,
           isPasswordProtected: hashedPassword.length > 0 ? true : false,
           password: hashedPassword ? `${password}` : "",
@@ -72,6 +72,7 @@ export const doxRouter = createTRPCRouter({
         isPasswordProtected: true,
         exposure: true,
         createdAt: true,
+        expiration: true,
       },
     });
 
