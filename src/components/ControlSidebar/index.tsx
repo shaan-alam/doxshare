@@ -61,7 +61,10 @@ const ControlSidebar = () => {
     onSubmit: (result) => {
       mutate({
         ...result,
-        expiration: new Date().getTime() + +result.expiration * 60 * 1000,
+        expiration:
+          result.expiration !== 0
+            ? new Date().getTime() + +result.expiration * 60 * 1000
+            : 0,
         content: editorContent,
       });
     },
