@@ -80,4 +80,26 @@ export const doxRouter = createTRPCRouter({
       doxes,
     };
   }),
+  deleteDox: protectedProcedure
+    .input(
+      z.object({
+        id: z.string(),
+      }),
+    )
+    .mutation(async ({ input, ctx }) => {
+      const { id } = input;
+      const userId = ctx.session.user.id;
+
+      try {
+        const result = await ctx.db.dox.delete({
+          where: {
+            id,
+            userId,
+          },
+        });
+        return { result };
+      } catch (err) {
+        throw new Error("Cannot delete the dox");
+      }
+    }),
 });
