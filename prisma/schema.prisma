@@ -16,7 +16,7 @@ model Dox {
   title               String
   password            String   @db.VarChar(300)
   isPasswordProtected Boolean  @default(false)
-  expiration          Decimal
+  expiration          BigInt?
   exposure            String
   content             String   @db.LongText()
   createdAt           DateTime @default(now())
