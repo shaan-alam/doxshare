@@ -13,6 +13,7 @@ generator client {
 
 model Dox {
   id                  String   @id @default(uuid())
+  pathId              String   @unique
   title               String
   password            String   @db.VarChar(300)
   isPasswordProtected Boolean  @default(false)

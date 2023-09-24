@@ -37,7 +37,7 @@ const ControlSidebar = () => {
 
   const { isLoading, mutate } = api.dox.createDox.useMutation({
     onSuccess: (result) => {
-      setShareableLink(`localhost:3000/view/${result.dox.id}`);
+      setShareableLink(`localhost:3000/view/${result.dox.pathId}`);
     },
   });
 

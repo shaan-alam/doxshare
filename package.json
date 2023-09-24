@@ -43,6 +43,7 @@
     "react-dom": "18.2.0",
     "react-qr-code": "^2.0.12",
     "sass": "^1.66.1",
+    "short-unique-id": "^5.0.3",
     "superjson": "^1.13.1",
     "tailwind-merge": "^1.14.0",
     "tailwindcss-animate": "^1.0.7",

@@ -18,7 +18,6 @@ import { api } from "@/utils/api";
 import {
   AlertDialog,
   AlertDialogTrigger,
-  AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
@@ -36,6 +35,7 @@ export type Dox = Prisma.DoxGetPayload<{
     title: true;
     isPasswordProtected: true;
     createdAt: true;
+    pathId: true;
   };
 }>;
 
@@ -109,9 +109,10 @@ export const columns: ColumnDef<Dox>[] = [
     id: "actions",
     header: "Actions",
     cell: ({ row }) => {
+      const dox = row.original;
+      console.log(dox);
       const { toast } = useToast();
       const trpcUtils = api.useContext();
-      const dox = row.original;
       const [isDeleteDialogOpen, setDeleteDialogOpen] = useState(false);
       const { mutate, isLoading } = api.dox.deleteDox.useMutation({
         onSuccess: () => {
@@ -123,6 +124,18 @@ export const columns: ColumnDef<Dox>[] = [
           });
         },
       });
+
+      const getShareableLink = () => {
+        const host =
+          process.env.NODE_ENV === "development"
+            ? "localhost:3000"
+            : "https://doxshare.vercel.app";
+        navigator.clipboard.writeText(`${host}/view/${dox?.pathId}`);
+        toast({
+          title: "Share Link copied",
+          description: "The shareable link has been copied to your clipboard!",
+        });
+      };
 
       return (
         <>
@@ -147,6 +160,12 @@ export const columns: ColumnDef<Dox>[] = [
                 onClick={() => setDeleteDialogOpen(true)}
               >
                 Delete
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                className="cursor-pointer"
+                onClick={getShareableLink}
+              >
+                Copy Shareable Link
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

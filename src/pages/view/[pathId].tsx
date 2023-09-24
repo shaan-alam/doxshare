@@ -6,12 +6,12 @@ import styles from "@/styles/dox.module.scss";
 
 const ViewDox: NextPage = () => {
   const router = useRouter();
-  const id = router.query["id"] as string;
+  const pathId = router.query["pathId"] as string;
 
   const { isLoading, data } = api.dox.getDox.useQuery(
-    { id },
+    { pathId },
     {
-      onSuccess: console.log
+      onSuccess: console.log,
     },
   );
 

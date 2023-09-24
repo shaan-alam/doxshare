@@ -1,5 +1,6 @@
 import { z } from "zod";
 import bcrypt from "bcrypt";
+import ShortUniqueId from "short-unique-id";
 
 import {
   createTRPCRouter,
@@ -21,6 +22,9 @@ export const doxRouter = createTRPCRouter({
     .mutation(async ({ input, ctx }) => {
       const { expiration, exposure, title, password, content } = input;
 
+      // custom path id that is used to create shareable link
+      const pathId = new ShortUniqueId({ length: 8 }).rnd();
+
       let hashedPassword = "";
       if (password) {
         hashedPassword = await bcrypt.hash(password, 12);
@@ -30,6 +34,7 @@ export const doxRouter = createTRPCRouter({
         data: {
           title,
           content,
+          pathId,
           expiration: expiration === 0 ? null : expiration,
           exposure,
           isPasswordProtected: hashedPassword.length > 0 ? true : false,
@@ -43,18 +48,19 @@ export const doxRouter = createTRPCRouter({
   getDox: protectedProcedure
     .input(
       z.object({
-        id: z.string(),
+        pathId: z.string(),
       }),
     )
     .query(async ({ input, ctx }) => {
-      const { id } = input;
+      const { pathId } = input;
+
       const dox = await ctx.db.dox.findUnique({
         where: {
-          id,
+          pathId,
         },
       });
 
-      return { dox: { ...dox } };
+      return { dox };
     }),
   getAllDox: protectedProcedure.query(async ({ input, ctx }) => {
     const { id } = ctx.session.user;
@@ -73,6 +79,7 @@ export const doxRouter = createTRPCRouter({
         exposure: true,
         createdAt: true,
         expiration: true,
+        pathId: true,
       },
     });
 
