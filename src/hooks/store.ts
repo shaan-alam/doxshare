@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { type JSONContent } from "@tiptap/react";
 
 type EditorStore = {
   content: string;
@@ -10,5 +11,6 @@ type EditorActions = {
 
 export const useEditor = create<EditorStore & EditorActions>((set) => ({
   content: "",
-  updateEditor: (value: string) => set((state) => ({ content: value })),
+  updateEditor: (value: EditorStore["content"]) =>
+    set((state) => ({ content: value })),
 }));

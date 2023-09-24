@@ -1,9 +1,3 @@
-import { ChevronLeft, Loader2 } from "lucide-react";
-import QRCode from "react-qr-code";
-import { Button } from "../ui/button";
-import Link from "next/link";
-import { Label } from "../ui/label";
-import { Input } from "../ui/input";
 import {
   Select,
   SelectContent,
@@ -11,12 +5,18 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { z } from "zod";
-import { useFormik } from "formik";
-import { toFormikValidationSchema } from "zod-formik-adapter";
-import { useState } from "react";
-import { api } from "@/utils/api";
 import { useEditor } from "@/hooks/store";
+import { api } from "@/utils/api";
+import { useFormik } from "formik";
+import { ChevronLeft, Loader2 } from "lucide-react";
+import Link from "next/link";
+import { useState } from "react";
+import QRCode from "react-qr-code";
+import { z } from "zod";
+import { toFormikValidationSchema } from "zod-formik-adapter";
+import { Button } from "../ui/button";
+import { Input } from "../ui/input";
+import { Label } from "../ui/label";
 import { ScrollArea } from "../ui/scroll-area";
 
 enum Expiration {
@@ -32,7 +32,7 @@ enum Expiration {
 }
 
 const ControlSidebar = () => {
-  const editorContent = useEditor((state) => state.content);
+  const [editorContent] = useEditor((state) => [state.content]);
   const [shareableLink, setShareableLink] = useState("");
 
   const { isLoading, mutate } = api.dox.createDox.useMutation({

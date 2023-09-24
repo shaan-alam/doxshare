@@ -1,10 +1,12 @@
+"use client";
+import { useEffect } from "react";
 import type { NextPage } from "next";
 import { Editor } from "novel";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { ControlSidebar } from "@/components";
 import { useEditor } from "@/hooks/store";
 
-const NewDox: NextPage = () => {
+const NewDox = () => {
   const [editorContent, updateEditorContent] = useEditor((state) => [
     state.content,
     state.updateEditor,
@@ -16,12 +18,16 @@ const NewDox: NextPage = () => {
         <Editor
           className="[& .tiptap>*]:my-1 w-full dark:bg-inherit"
           defaultValue={editorContent}
-          onUpdate={(editor) =>
-            updateEditorContent(editor?.getHTML() as string)
-          }
+          onUpdate={(editor) => {
+            localStorage.setItem(
+              "novel_content",
+              JSON.stringify(editor?.getHTML()),
+            );
+            updateEditorContent(editor?.getHTML() as string);
+          }}
         />
       </ScrollArea>
-      <ControlSidebar  />
+      <ControlSidebar />
     </section>
   );
 };
