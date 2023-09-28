@@ -185,7 +185,7 @@ export const columns: ColumnDef<Dox>[] = [
               <AlertDialogFooter>
                 <AlertDialogCancel>Cancel</AlertDialogCancel>
                 <Button
-                  className="flex items-center bg-destructive text-white hover:bg-destructive"
+                  className="flex mt-2 items-center bg-destructive text-white hover:bg-destructive"
                   onClick={() => mutate({ id: dox.id })}
                 >
                   {isLoading && (
