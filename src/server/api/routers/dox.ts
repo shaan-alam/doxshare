@@ -109,4 +109,30 @@ export const doxRouter = createTRPCRouter({
         throw new Error("Cannot delete the dox");
       }
     }),
+  reviveDox: protectedProcedure
+    .input(
+      z.object({
+        id: z.string(),
+      }),
+    )
+    .mutation(async ({ input, ctx }) => {
+      const { id } = input;
+
+      const dox = await ctx.db.dox.findUnique({
+        where: {
+          id,
+        },
+      });
+
+      const updatedDox = await ctx.db.dox.update({
+        data: {
+          expiration: new Date().getTime() + Number(dox?.expiration) * 60 * 1000,
+        },
+        where: {
+          id,
+        },
+      });
+
+      return { dox: updatedDox };
+    }),
 });

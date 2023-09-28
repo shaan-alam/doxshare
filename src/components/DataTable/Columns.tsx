@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Prisma } from "@prisma/client";
 import { ColumnDef } from "@tanstack/react-table";
 import {
@@ -72,13 +72,6 @@ export const columns: ColumnDef<Dox>[] = [
         return <span className="text-blue-500">Never Expires</span>;
       }
 
-      console.log(
-        "current time ",
-        new Date().getTime(),
-        " expiration time ",
-        new Date(Number(dox.expiration)).getTime(),
-      );
-
       if (new Date().getTime() > new Date(Number(dox.expiration)).getTime()) {
         return <span className="text-red-500">Expired</span>;
       } else {
@@ -109,11 +102,21 @@ export const columns: ColumnDef<Dox>[] = [
     id: "actions",
     header: "Actions",
     cell: ({ row }) => {
+      const [isExpired, setIsExpired] = useState(false);
+      
       const dox = row.original;
       console.log(dox);
       const { toast } = useToast();
       const trpcUtils = api.useContext();
       const [isDeleteDialogOpen, setDeleteDialogOpen] = useState(false);
+
+      const { mutate: generateShareableLink, isLoading: generatingLink } =
+        api.dox.reviveDox.useMutation({
+          onSuccess: () => {
+            trpcUtils.invalidate();
+          },
+        });
+
       const { mutate, isLoading } = api.dox.deleteDox.useMutation({
         onSuccess: () => {
           trpcUtils.invalidate();
@@ -125,11 +128,22 @@ export const columns: ColumnDef<Dox>[] = [
         },
       });
 
+      useEffect(() => {
+        if (new Date().getTime() > new Date(Number(dox.expiration)).getTime()) {
+          setIsExpired(true);
+        }
+      }, [isExpired]);
+
       const getShareableLink = () => {
         const host =
           process.env.NODE_ENV === "development"
             ? "localhost:3000"
             : "https://doxshare.vercel.app";
+
+        if (isExpired) {
+          generateShareableLink({ id: dox.id });
+        }
+
         navigator.clipboard.writeText(`${host}/view/${dox?.pathId}`);
         toast({
           title: "Share Link copied",
@@ -162,10 +176,11 @@ export const columns: ColumnDef<Dox>[] = [
                 Delete
               </DropdownMenuItem>
               <DropdownMenuItem
-                className="cursor-pointer"
+                className="flex cursor-pointer items-center"
                 onClick={getShareableLink}
               >
-                Copy Shareable Link
+                {generatingLink && <Loader2 className="h-4 w-4 animate-spin" />}
+                {isExpired ? "Generate" : "Copy"} Shareable Link
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -185,7 +200,7 @@ export const columns: ColumnDef<Dox>[] = [
               <AlertDialogFooter>
                 <AlertDialogCancel>Cancel</AlertDialogCancel>
                 <Button
-                  className="flex mt-2 items-center bg-destructive text-white hover:bg-destructive"
+                  className="mt-2 flex items-center bg-destructive text-white hover:bg-destructive"
                   onClick={() => mutate({ id: dox.id })}
                 >
                   {isLoading && (
